@@ -1,3 +1,4 @@
+README.md
 pyproject.toml
 foot_traffic_forecasting.egg-info/PKG-INFO
 foot_traffic_forecasting.egg-info/SOURCES.txt

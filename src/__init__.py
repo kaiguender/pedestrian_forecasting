@@ -9,7 +9,7 @@ This package contains all the modular components for the forecasting pipeline:
 - uncertainty: Prediction interval computation
 """
 
-from .features import create_all_features, get_feature_columns
+from .features import create_all_features, get_feature_columns, align_dataframe_columns
 from .modeling import (
     get_cv_splits,
     tune_model_bayes,
@@ -35,6 +35,7 @@ __all__ = [
     # Features
     'create_all_features',
     'get_feature_columns',
+    'align_dataframe_columns',
     # Modeling
     'get_cv_splits',
     'tune_model_bayes',

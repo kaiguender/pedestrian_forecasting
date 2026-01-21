@@ -229,7 +229,7 @@ def add_timestamp(df: pd.DataFrame, date_col: str = "date", hour_col: str = "hou
     The hour is treated as `0..` hours offset from `date`. If your data uses 1-24,
     ensure consistency with prior feature builders.
     """
-    ts = pd.to_datetime(df[date_col]) + pd.to_timedelta(df[hour_col] - 1, unit="H")
+    ts = pd.to_datetime(df[date_col]) + pd.to_timedelta(df[hour_col] - 1, unit="h")
     return df.assign(timestamp=ts)
 
 
@@ -290,7 +290,7 @@ def add_rolling_lag_means(
         for col in value_cols:
             s = street_data[col].shift(1)  # exclude current hour
             for w in windows_hours:
-                street_data[f"{col}_mean_lag{w}h"] = s.rolling(f"{w}H", min_periods=min_periods).mean()
+                street_data[f"{col}_mean_lag{w}h"] = s.rolling(f"{w}h", min_periods=min_periods).mean()
         data_out.append(street_data)
 
     out = pd.concat(data_out).sort_index()
@@ -503,3 +503,54 @@ def create_all_features(df: pd.DataFrame) -> pd.DataFrame:
             df[f'{col}_encoded'] = le.fit_transform(df[col])
 
     return df
+
+
+def align_dataframe_columns(train_df: pd.DataFrame, test_df: pd.DataFrame,
+                           exclude_cols: list = None) -> pd.DataFrame:
+    """
+    Align test dataframe columns to match training dataframe.
+
+    Adds missing columns (filled with 0) and removes extra columns from test_df
+    to ensure both dataframes have the same feature columns.
+
+    Parameters
+    ----------
+    train_df : pandas.DataFrame
+        Training dataframe with complete set of columns
+    test_df : pandas.DataFrame
+        Test dataframe to align
+    exclude_cols : list, optional
+        Columns to exclude from alignment (e.g., target columns, ids)
+
+    Returns
+    -------
+    pandas.DataFrame
+        Test dataframe with aligned columns
+
+    Notes
+    -----
+    This is useful when one-hot encoding creates different columns in train vs test
+    due to missing categorical values.
+    """
+    if exclude_cols is None:
+        exclude_cols = ['id', 'datetime', 'date', 'timestamp', 'streetname',
+                       'n_pedestrians', 'n_pedestrians_towards', 'n_pedestrians_away']
+
+    # Get column sets
+    train_cols = set(train_df.columns) - set(exclude_cols)
+    test_cols = set(test_df.columns) - set(exclude_cols)
+
+    # Find missing and extra columns
+    missing_cols = train_cols - test_cols
+    extra_cols = test_cols - train_cols
+
+    if missing_cols:
+        print(f"Adding {len(missing_cols)} missing columns to test set: {sorted(missing_cols)}")
+        for col in missing_cols:
+            test_df[col] = 0
+
+    if extra_cols:
+        print(f"Removing {len(extra_cols)} extra columns from test set: {sorted(extra_cols)}")
+        test_df = test_df.drop(columns=list(extra_cols))
+
+    return test_df
