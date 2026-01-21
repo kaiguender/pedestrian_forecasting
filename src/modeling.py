@@ -34,6 +34,47 @@ from sklearn.metrics import mean_squared_error
 from skopt import BayesSearchCV
 
 
+def get_train_val_split_by_date(df: pd.DataFrame, train_end_date: str, val_days: int) -> tuple:
+    """
+    Split data into train/val based on explicit date cutoff.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Must contain 'date' column in YYYY-MM-DD format
+    train_end_date : str
+        Last date to include in training (format: 'YYYY-MM-DD')
+        Validation starts the next day
+    val_days : int
+        Number of days for validation period
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        (train_idx, val_idx) - integer indices for train and validation sets
+    """
+    df = df.copy()
+    df.reset_index(drop=True, inplace=True)
+    df['date'] = pd.to_datetime(df['date'])
+
+    train_end = pd.to_datetime(train_end_date)
+    val_start = train_end + pd.Timedelta(days=1)
+    val_end = val_start + pd.Timedelta(days=val_days) - pd.Timedelta(days=1)
+
+    train_mask = df['date'] <= train_end
+    val_mask = (df['date'] >= val_start) & (df['date'] <= val_end)
+
+    train_idx = df[train_mask].index.values
+    val_idx = df[val_mask].index.values
+
+    print(f"Train period: up to {train_end.date()}")
+    print(f"Validation period: {val_start.date()} to {val_end.date()} ({val_days} days)")
+    print(f"Train samples: {len(train_idx):,}")
+    print(f"Validation samples: {len(val_idx):,}")
+
+    return train_idx, val_idx
+
+
 def get_cv_splits(df: pd.DataFrame, n_splits: int = 5, len_split: int = 168) -> list:
     """
     Build blocked, **time-ordered** cross-validation splits per street.

@@ -12,6 +12,7 @@ This package contains all the modular components for the forecasting pipeline:
 from .features import create_all_features, get_feature_columns, align_dataframe_columns
 from .modeling import (
     get_cv_splits,
+    get_train_val_split_by_date,
     tune_model_bayes,
     tune_model_random,
     get_best_model,
@@ -38,6 +39,7 @@ __all__ = [
     'align_dataframe_columns',
     # Modeling
     'get_cv_splits',
+    'get_train_val_split_by_date',
     'tune_model_bayes',
     'tune_model_random',
     'get_best_model',

@@ -34,6 +34,10 @@ VERBOSE = 1               # Verbosity level for tuning output
 RETRAIN_ON_VAL = False    # If True, retrain on train+val for final predictions
 DESEASONALIZE = False     # If True, apply deseasonalization to targets
 
+# Train/Validation/Test split configuration
+TRAIN_END_DATE = '2025-01-19'  # Last date included in training (validation starts next day)
+VAL_TEST_DAYS = 14              # Number of days for validation and test periods (kept equal)
+
 # Target columns to predict
 TARGETS = ['n_pedestrians', 'n_pedestrians_towards', 'n_pedestrians_away']
 
