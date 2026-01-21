@@ -1,0 +1,126 @@
+# Foot Traffic Forecasting
+
+A machine learning pipeline for forecasting hourly pedestrian counts across multiple streets in Würzburg, Germany. This project uses gradient boosting models (LightGBM and XGBoost) with comprehensive feature engineering and uncertainty quantification.
+
+## Overview
+
+This repository contains a complete end-to-end forecasting pipeline that:
+- Processes raw pedestrian counting data and external features (weather, holidays, events)
+- Engineers time-based, statistical, and contextual features
+- Trains and evaluates multiple gradient boosting models
+- Generates probabilistic forecasts with uncertainty estimates
+- Provides detailed performance analysis and visualizations
+
+## Project Structure
+
+```
+.
+├── config.py                           # Central configuration file
+├── src/
+│   ├── __init__.py                     # Main pipeline orchestration
+│   ├── features.py                     # Feature engineering functions
+│   ├── modeling.py                     # Model training and prediction
+│   ├── evaluation.py                   # Performance metrics and analysis
+│   ├── uncertainty.py                  # Uncertainty quantification
+│   └── visualization.py                # Plotting and visualization
+├── data_foot_traffic/                  # Pedestrian count data
+├── data_general/                       # External data (weather, holidays, events)
+├── plots/                              # Generated visualizations
+└── fc_pipeline_footTraffic.ipynb       # Interactive notebook interface
+
+```
+
+## Quick Start
+
+### Installation
+
+1. Clone the repository and install dependencies:
+```bash
+pip install -e .
+```
+
+2. For development with Jupyter notebook support:
+```bash
+pip install -e ".[dev]"
+```
+
+### Configuration
+
+Edit [config.py](config.py) to customize the pipeline:
+- `MODELS_TO_USE`: Choose between `'lgb'` (LightGBM) or `'xgb'` (XGBoost)
+- `TUNE_MODELS`: Enable Bayesian hyperparameter optimization
+- `RETRAIN_ON_VAL`: Retrain on train+validation for final predictions
+- `DESEASONALIZE`: Apply deseasonalization to remove seasonal patterns from targets
+- `TARGETS`: Specify which pedestrian counts to predict
+
+### Running the Pipeline
+
+**Option 1: Jupyter Notebook**
+```bash
+jupyter notebook fc_pipeline_footTraffic.ipynb
+```
+
+**Option 2: Python Script**
+```python
+from src import run_pipeline
+
+# Run with default config.py settings
+run_pipeline()
+```
+
+## Features
+
+### Target Variables
+- `n_pedestrians`: Total pedestrian count
+- `n_pedestrians_towards`: Directional count (towards)
+- `n_pedestrians_away`: Directional count (away)
+
+### Feature Categories
+- **Temporal**: Hour, day of week, month, year, cyclical encodings
+- **Calendar**: Public holidays, school holidays, vacation periods
+- **Weather**: Temperature, precipitation, wind, sunshine duration
+- **Events**: Local events and special occasions
+- **Statistical**: Lag features, rolling statistics, exponential smoothing
+- **Street-specific**: Location-based patterns and trends
+
+### Models
+- **LightGBM**: Fast gradient boosting with efficient handling of categorical features
+- **XGBoost**: Robust gradient boosting with strong predictive performance
+- **Ensemble**: Optional model averaging for improved stability
+
+## Output
+
+The pipeline generates:
+- `submission.csv`: Hourly forecasts for all streets and target variables
+- Performance metrics (MAE, RMSE, MAPE, R²) by street and time period
+- Uncertainty intervals (prediction intervals and quantile forecasts)
+- Feature importance analysis with SHAP values
+- Comprehensive visualizations in the `plots/` directory
+
+## Dependencies
+
+- pandas >= 1.5.0
+- numpy >= 1.21.0
+- scikit-learn >= 1.0.0
+- lightgbm >= 3.3.0
+- xgboost >= 1.6.0
+- scikit-optimize >= 0.9.0
+- matplotlib >= 3.5.0
+- shap >= 0.41.0
+
+## Configuration Reference
+
+Key parameters in [config.py](config.py):
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `MODELS_TO_USE` | `['xgb']` | Models to train (`'lgb'`, `'xgb'`) |
+| `TUNE_MODELS` | `False` | Enable hyperparameter tuning |
+| `N_SPLITS` | `10` | Cross-validation splits for tuning |
+| `N_ITER` | `100` | Tuning iterations |
+| `RETRAIN_ON_VAL` | `False` | Retrain on train+val data |
+| `DESEASONALIZE` | `False` | Apply deseasonalization to targets |
+
+## License
+
+This project is for research and educational purposes.
