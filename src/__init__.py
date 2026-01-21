@@ -28,7 +28,7 @@ from .evaluation import (
     display_feature_importance,
     display_target_metrics,
 )
-from .visualization import plot_model_comparison, plot_prediction_intervals
+from .visualization import plot_model_comparison, plot_prediction_intervals, plot_train_val_predictions
 from .uncertainty import compute_prediction_intervals, check_calibration
 
 __all__ = [
@@ -55,6 +55,7 @@ __all__ = [
     # Visualization
     'plot_model_comparison',
     'plot_prediction_intervals',
+    'plot_train_val_predictions',
     # Uncertainty
     'compute_prediction_intervals',
     'check_calibration',

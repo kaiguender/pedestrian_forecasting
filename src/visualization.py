@@ -99,6 +99,95 @@ def plot_model_comparison(val_df: pd.DataFrame, predictions_dict: dict,
     plt.show()
 
 
+def plot_train_val_predictions(X_train: pd.DataFrame,
+                               X_val: pd.DataFrame,
+                               train_preds: np.ndarray,
+                               val_preds: np.ndarray,
+                               target: str,
+                               sample_size: int = 500,
+                               save_path: str = None) -> None:
+    """
+    Plot predictions vs actuals for training and validation periods.
+
+    Shows the last `sample_size` hours of training data and all validation data
+    with a clear visual separation between the two periods.
+
+    Parameters
+    ----------
+    X_train : pandas.DataFrame
+        Training data with columns: 'streetname', 'date', 'hour', and target column
+    X_val : pandas.DataFrame
+        Validation data with columns: 'streetname', 'date', 'hour', and target column
+    train_preds : numpy.ndarray
+        Predictions for training data (aligned with X_train)
+    val_preds : numpy.ndarray
+        Predictions for validation data (aligned with X_val)
+    target : str
+        Name of the target column to plot
+    sample_size : int, default 500
+        Number of recent training hours to display (to avoid overcrowding)
+    save_path : str, optional
+        Path to save the figure (e.g., 'plots/predictions.png')
+
+    Returns
+    -------
+    None
+        Displays and optionally saves the matplotlib figure
+    """
+    # Create figure with subplots for each street
+    streets = X_train['streetname'].unique()
+    fig, axes = plt.subplots(len(streets), 1, figsize=(15, 4*len(streets)))
+    if len(streets) == 1:
+        axes = [axes]
+
+    for idx, street in enumerate(streets):
+        ax = axes[idx]
+
+        # Training data for this street
+        train_mask = X_train['streetname'] == street
+        train_subset = X_train[train_mask].copy()
+        train_subset['datetime'] = pd.to_datetime(train_subset['date']) + pd.to_timedelta(train_subset['hour'], unit='h')
+        train_subset['prediction'] = train_preds[train_mask]
+        train_subset = train_subset.sort_values('datetime')
+
+        # Validation data for this street
+        val_mask = X_val['streetname'] == street
+        val_subset = X_val[val_mask].copy()
+        val_subset['datetime'] = pd.to_datetime(val_subset['date']) + pd.to_timedelta(val_subset['hour'], unit='h')
+        val_subset['prediction'] = val_preds[val_mask]
+        val_subset = val_subset.sort_values('datetime')
+
+        # Plot training period (sample for readability)
+        n_sample = min(sample_size, len(train_subset))
+        train_sample = train_subset.tail(n_sample)  # Last N hours before validation
+        ax.plot(train_sample['datetime'], train_sample[target],
+                label='Actual (Train)', color='#2E86AB', alpha=0.8, linewidth=1.5)
+        ax.plot(train_sample['datetime'], train_sample['prediction'],
+                label='Predicted (Train)', color='#A23B72', alpha=0.7, linewidth=1.5, linestyle='--')
+
+        # Plot validation period
+        ax.plot(val_subset['datetime'], val_subset[target],
+                label='Actual (Val)', color='#F18F01', alpha=0.9, linewidth=2)
+        ax.plot(val_subset['datetime'], val_subset['prediction'],
+                label='Predicted (Val)', color='#C73E1D', alpha=0.8, linewidth=2, linestyle='--')
+
+        # Add vertical line to separate train/val
+        if len(val_subset) > 0:
+            ax.axvline(x=val_subset['datetime'].min(), color='gray',
+                      linestyle=':', linewidth=2, alpha=0.7, label='Train/Val Split')
+
+        ax.set_title(f'{street.title()} - {target}', fontsize=12, fontweight='bold')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Pedestrian Count')
+        ax.legend(loc='upper right')
+        ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.show()
+
+
 def plot_prediction_intervals(df: pd.DataFrame,
                               target: str,
                               street: str,
