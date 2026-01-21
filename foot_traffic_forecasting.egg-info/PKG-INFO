@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: foot-traffic-forecasting
+Version: 1.0.0
+Summary: Foot traffic forecasting pipeline for Würzburg pedestrian data
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: pandas>=1.5.0
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: scikit-learn>=1.0.0
+Requires-Dist: lightgbm>=3.3.0
+Requires-Dist: xgboost>=1.6.0
+Requires-Dist: scikit-optimize>=0.9.0
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: shap>=0.41.0
+Provides-Extra: dev
+Requires-Dist: jupyter>=1.0.0; extra == "dev"
+Requires-Dist: ipykernel>=6.0.0; extra == "dev"

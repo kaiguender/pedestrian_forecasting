@@ -1,0 +1,30 @@
+[project]
+name = "foot-traffic-forecasting"
+version = "1.0.0"
+description = "Foot traffic forecasting pipeline for Würzburg pedestrian data"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=1.5.0",
+    "numpy>=1.21.0",
+    "scikit-learn>=1.0.0",
+    "lightgbm>=3.3.0",
+    "xgboost>=1.6.0",
+    "scikit-optimize>=0.9.0",
+    "matplotlib>=3.5.0",
+    "shap>=0.41.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "config*"]
